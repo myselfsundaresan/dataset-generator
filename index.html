@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dataset Generator | myselfsundaresan</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+
+    <style>
+        /* --- Design System Tokens (From Portfolio) --- */
+        :root {
+            --accent-primary: #FD6F00;
+            --accent-rgb: 253, 111, 0; 
+            --accent-secondary: #FFF1E6;
+            --bg-darker: #0B0B0B;
+            --bg-card: #1E1E1E;
+            --text-main: #FEFEFE;
+            --text-muted: #9CA3AF;
+            --dl-poetry-accent: #FEC599; 
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-darker);
+            color: var(--text-main);
+            height: 100vh; /* Fixed height */
+            overflow: hidden; /* Prevent body scroll */
+        }
+
+        /* --- Components --- */
+        
+        /* Glass Card */
+        .glass-card {
+            background-color: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            backdrop-filter: blur(12px);
+        }
+
+        .glass-card:hover {
+            border-color: var(--accent-primary);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(255,255,255,0.05);
+        }
+
+        /* Buttons */
+        .btn-accent {
+            background-color: var(--accent-primary);
+            color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            border-radius: 9999px; /* Rounded full */
+            font-weight: 600;
+        }
+        .btn-accent:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px var(--accent-primary);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--accent-primary);
+            color: var(--accent-primary);
+            transition: all 0.3s ease;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+        .btn-outline:hover {
+            background: var(--accent-primary);
+            color: white;
+            box-shadow: 0 0 20px var(--accent-primary);
+        }
+
+        .btn-danger {
+            color: #ef4444;
+            transition: color 0.2s;
+        }
+        .btn-danger:hover {
+            color: #f87171;
+        }
+
+        /* Inputs */
+        .input-dark {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            transition: all 0.3s ease;
+            border-radius: 0.5rem;
+        }
+        .input-dark:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background: rgba(255,255,255,0.05);
+            box-shadow: 0 0 0 2px rgba(253, 111, 0, 0.2);
+        }
+
+        /* Hide Input Arrows (Spinners) */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-darker); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
+
+        /* Tables */
+        .table-header {
+            background-color: rgba(255,255,255,0.03);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.70rem;
+            letter-spacing: 0.05em;
+        }
+        .table-row {
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: background-color 0.2s;
+        }
+        .table-row:hover {
+            background-color: rgba(255,255,255,0.02);
+        }
+
+        /* Tabs */
+        .tab-btn {
+            border-bottom: 2px solid transparent;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+        }
+        .tab-btn:hover {
+            color: white;
+        }
+        .tab-btn.active {
+            border-bottom-color: var(--accent-primary);
+            color: white;
+        }
+
+        /* Verification Panel Collapsible Logic */
+        #verification-panel {
+            max-height: 56px; /* Collapsed height (Header only) */
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #verification-panel:hover, 
+        #verification-panel.expanded {
+            max-height: 40%; /* Expanded height */
+        }
+
+        /* Toast */
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 50;
+        }
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--accent-primary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="p-2 md:p-4 h-screen flex flex-col overflow-hidden box-border">
+
+    <div id="toast-container"></div>
+
+    <div class="w-full max-w-[1400px] mx-auto flex flex-col h-full gap-4">
+        <header class="shrink-0 flex flex-col md:flex-row justify-between items-center glass-card px-5 py-3 rounded-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-[var(--accent-primary)]/5 to-transparent pointer-events-none"></div>
+
+            <div class="relative z-10 mb-2 md:mb-0">
+                <a href="https://myselfsundaresan.github.io/" class="text-[var(--accent-primary)] text-[10px] font-bold uppercase tracking-[0.2em] flex items-center gap-1 mb-1 hover:opacity-80 transition-opacity">
+                    <span class="material-symbols-outlined text-xs">arrow_back</span>
+                    Back to Portfolio
+                </a>
+                <h1 class="text-2xl font-bold mb-0 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[var(--accent-primary)] text-3xl">database</span>
+                    <span>Dataset <span class="text-[var(--accent-primary)]">Generator</span></span>
+                </h1>
+                <p class="text-[var(--text-muted)] text-xs">Generate raw datasets from Statistics</p>
+            </div>
+            
+            <div class="relative z-10 flex flex-wrap gap-2 justify-center">
+                <button onclick="addVariable()" class="btn-outline px-3 py-1.5 text-xs flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">add</span> Variable
+                </button>
+                <button onclick="addGroup()" class="btn-outline px-3 py-1.5 text-xs flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">group_add</span> Group
+                </button>
+                <button onclick="resetDefaults()" class="text-[var(--text-muted)] hover:text-white text-xs underline px-2 transition-colors">
+                    Reset
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 min-h-0 grid grid-cols-1 xl:grid-cols-12 gap-4">
+            
+            <div class="xl:col-span-4 glass-card rounded-2xl flex flex-col h-full overflow-hidden">
+                <div class="px-5 py-3 border-b border-white/5 flex justify-between items-center shrink-0">
+                    <h2 class="text-lg font-bold flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[var(--accent-primary)] text-xl">tune</span>
+                        Configuration
+                    </h2>
+                    <span class="text-[10px] font-mono bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] px-1.5 py-0.5 rounded border border-[var(--accent-primary)]/20">Auto-Update</span>
+                </div>
+                
+                <div id="config-container" class="flex-1 overflow-y-auto p-4 space-y-4">
+                    </div>
+
+                <div class="px-5 py-3 border-t border-white/5 shrink-0">
+                    <button onclick="generateData()" class="btn-accent w-full py-2.5 text-sm flex justify-center items-center gap-2 shadow-xl">
+                        <span class="material-symbols-outlined text-lg">refresh</span> 
+                        Regenerate Dataset
+                    </button>
+                </div>
+            </div>
+
+            <div id="results-panel" class="xl:col-span-8 flex flex-col gap-4 h-full min-h-0 hidden">
+                
+                <div id="verification-panel" class="glass-card rounded-2xl overflow-hidden shrink-0 flex flex-col group">
+                    <div class="px-5 py-3 border-b border-white/5 shrink-0 flex justify-between items-center cursor-default">
+                        <h2 class="text-lg font-bold flex items-center gap-2">
+                            <span class="material-symbols-outlined text-green-500 text-xl">verified</span>
+                            Verification
+                        </h2>
+                        <span class="text-xs text-gray-500 group-hover:text-[var(--accent-primary)] transition-colors opacity-100 group-[.expanded]:opacity-0">Hover to Expand</span>
+                    </div>
+                    <div class="overflow-auto flex-1">
+                        <table class="w-full text-xs text-left">
+                            <thead class="table-header sticky top-0 z-10 backdrop-blur-md">
+                                <tr>
+                                    <th class="px-4 py-2">Group</th>
+                                    <th class="px-4 py-2">Variable</th>
+                                    <th class="px-4 py-2 text-right">Target</th>
+                                    <th class="px-4 py-2 text-right">Generated</th>
+                                    <th class="px-4 py-2 text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stats-table-body" class="divide-y divide-white/5 text-gray-300">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl flex flex-col flex-1 min-h-0 overflow-hidden">
+                    <div class="px-5 py-3 border-b border-white/5 flex justify-between items-center shrink-0">
+                        <div class="flex items-center gap-3">
+                            <h2 class="text-lg font-bold flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[var(--dl-poetry-accent)] text-xl">table_view</span>
+                                Raw Data
+                            </h2>
+                            <span class="text-[10px] bg-white/10 text-white px-2 py-0.5 rounded-full border border-white/10">Total N=<span id="total-n">30</span></span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="downloadJSON()" class="btn-outline px-3 py-1.5 text-xs flex items-center gap-1.5 border-gray-600 text-gray-300 hover:bg-gray-800 hover:border-gray-500">
+                                <span class="material-symbols-outlined text-sm">code</span> JSON
+                            </button>
+                            <button onclick="downloadCSV()" class="btn-accent px-3 py-1.5 text-xs flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-sm">download</span> CSV
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="px-5 pt-2 border-b border-white/5 flex gap-4 overflow-x-auto shrink-0" id="tabs-container">
+                        </div>
+
+                    <div class="flex-1 overflow-auto">
+                        <table class="w-full text-xs text-left border-collapse">
+                            <thead class="table-header sticky top-0 z-10 backdrop-blur-md">
+                                <tr id="data-table-header">
+                                    </tr>
+                            </thead>
+                            <tbody id="data-table-body" class="divide-y divide-white/5 text-gray-300">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- State Management ---
+        
+        const initialGroups = [
+            {
+                id: 'g1',
+                name: "Group 1",
+                n: 10,
+                variables: {
+                    "Variable 1": { mean: 0, sd: 0 } // Default to 0 for both
+                }
+            }
+        ];
+
+        let state = {
+            groups: JSON.parse(JSON.stringify(initialGroups)),
+            activeTabIndex: 0,
+            generatedData: []
+        };
+
+        // --- Core Algorithm ---
+
+        function randomNormal() {
+            let u = 0, v = 0;
+            while(u === 0) u = Math.random();
+            while(v === 0) v = Math.random();
+            return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+        }
+
+        function generateExactData(n, targetMean, targetSd) {
+            if (n < 2) return Array(n).fill(targetMean); 
+            
+            let data = Array.from({ length: n }, () => randomNormal());
+            
+            const currentMean = data.reduce((a, b) => a + b, 0) / n;
+            const currentVariance = data.reduce((a, b) => a + Math.pow(b - currentMean, 2), 0) / (n - 1);
+            const currentSd = Math.sqrt(currentVariance);
+
+            return data.map(x => {
+                if(currentSd === 0) return targetMean; 
+                return ((x - currentMean) / currentSd) * targetSd + targetMean;
+            });
+        }
+
+        // --- Controller Functions ---
+
+        function addVariable() {
+            const varName = prompt("Enter new variable name (e.g., Age, BMI):");
+            if (!varName) return;
+            
+            if (state.groups.length > 0 && state.groups[0].variables[varName]) {
+                alert("Variable name already exists.");
+                return;
+            }
+
+            state.groups.forEach(group => {
+                if (!group.variables[varName]) {
+                    group.variables[varName] = { mean: 0, sd: 0 };
+                }
+            });
+            refreshUI();
+        }
+
+        function renameVariable(oldName, newName) {
+            if (newName === undefined) {
+                newName = prompt("Enter new variable name:", oldName);
+            }
+            
+            if (!newName || newName === oldName) {
+                refreshUI();
+                return;
+            }
+
+            if (state.groups.length > 0 && state.groups[0].variables[newName]) {
+                alert("Variable name already exists.");
+                refreshUI();
+                return;
+            }
+
+            state.groups.forEach(group => {
+                const newVariables = {};
+                Object.keys(group.variables).forEach(key => {
+                    if (key === oldName) {
+                        newVariables[newName] = group.variables[oldName];
+                    } else {
+                        newVariables[key] = group.variables[key];
+                    }
+                });
+                group.variables = newVariables;
+            });
+            refreshUI();
+        }
+
+        function renameGroup(groupIndex) {
+            const oldName = state.groups[groupIndex].name;
+            const newName = prompt("Enter new Group name:", oldName);
+            
+            if (newName && newName !== oldName) {
+                state.groups[groupIndex].name = newName;
+                generateData(); 
+            }
+        }
+
+        function removeVariable(varName) {
+            if (!confirm(`Delete variable "${varName}" from all groups?`)) return;
+            state.groups.forEach(group => {
+                delete group.variables[varName];
+            });
+            refreshUI();
+        }
+
+        function addGroup() {
+            const groupName = prompt("Enter new Group name:");
+            if (!groupName) return;
+            
+            const firstGroupVars = state.groups.length > 0 ? Object.keys(state.groups[0].variables) : ['Variable 1'];
+            const newVariables = {};
+            
+            firstGroupVars.forEach(v => {
+                newVariables[v] = { mean: 0, sd: 0 };
+            });
+
+            state.groups.push({
+                id: 'g_' + Date.now(),
+                name: groupName,
+                n: 10,
+                variables: newVariables
+            });
+            refreshUI();
+        }
+
+        function removeGroup(index) {
+            if (state.groups.length <= 1) {
+                alert("You must have at least one group.");
+                return;
+            }
+            if (!confirm("Remove this group?")) return;
+            state.groups.splice(index, 1);
+            // Adjust active tab if needed
+            if (state.activeTabIndex >= state.groups.length) {
+                state.activeTabIndex = Math.max(0, state.groups.length - 1);
+            }
+            refreshUI();
+        }
+
+        function updateConfig(groupIndex, varName, field, value) {
+            state.groups[groupIndex].variables[varName][field] = parseFloat(value) || 0;
+        }
+
+        function updateGroupN(groupIndex, value) {
+            const n = parseInt(value);
+            if (n > 0) {
+                state.groups[groupIndex].n = n;
+            }
+        }
+
+        function resetDefaults() {
+            if(confirm("Reset to default configuration?")) {
+                state.groups = JSON.parse(JSON.stringify(initialGroups));
+                state.activeTabIndex = 0;
+                renderConfig();
+                // Hide results on reset
+                document.getElementById('results-panel').classList.add('hidden');
+                state.generatedData = [];
+            }
+        }
+
+        function refreshUI() {
+            renderConfig();
+            generateData();
+        }
+
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<span class="material-symbols-outlined text-[var(--accent-primary)]">check_circle</span> <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            // Trigger reflow for transition
+            requestAnimationFrame(() => {
+                toast.classList.add('show');
+            });
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => container.removeChild(toast), 300);
+            }, 2000);
+        }
+
+        function copyColumn(varName) {
+            if (!state.generatedData.length || !state.groups[state.activeTabIndex]) return;
+            
+            const activeGroupName = state.groups[state.activeTabIndex].name;
+            const rows = state.generatedData.filter(r => r.group === activeGroupName);
+            
+            if (rows.length === 0) return;
+
+            const values = rows.map(r => r[varName].toFixed(3)).join('\n');
+            
+            navigator.clipboard.writeText(values).then(() => {
+                showToast(`Copied values for <strong>${varName}</strong>`);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy to clipboard.');
+            });
+        }
+
+        function switchTab(index) {
+            state.activeTabIndex = index;
+            renderTabs();
+            // Re-render table for the new active tab without regenerating data
+            const allVarNames = state.groups.length > 0 ? Object.keys(state.groups[0].variables) : [];
+            renderTable(allVarNames);
+        }
+
+        // --- Auto Expand Logic ---
+        let expandTimeout;
+        function triggerVerificationExpand() {
+            const panel = document.getElementById('verification-panel');
+            if (!panel) return;
+            
+            panel.classList.add('expanded');
+            
+            if (expandTimeout) clearTimeout(expandTimeout);
+            
+            expandTimeout = setTimeout(() => {
+                panel.classList.remove('expanded');
+            }, 3000); // 3 seconds delay
+        }
+
+        // --- Rendering ---
+
+        function renderConfig() {
+            const container = document.getElementById('config-container');
+            container.innerHTML = '';
+
+            state.groups.forEach((group, groupIndex) => {
+                const groupEl = document.createElement('div');
+                groupEl.className = 'bg-white/5 rounded-xl p-4 border border-white/10 relative group hover:border-[var(--accent-primary)]/50 transition-colors duration-300';
+                
+                // Group Header
+                let varsHtml = '';
+                const varKeys = Object.keys(group.variables);
+
+                // Group Controls
+                const deleteBtn = `
+                    <button onclick="removeGroup(${groupIndex})" class="btn-danger absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity" title="Remove Group">
+                        <span class="material-symbols-outlined text-base">delete</span>
+                    </button>
+                `;
+                
+                // Variable Inputs
+                varKeys.forEach(varName => {
+                    varsHtml += `
+                        <div class="mt-3 pb-3 border-b border-white/5 last:border-0 last:pb-0 relative">
+                            <div class="flex justify-between items-center mb-1.5">
+                                <div class="flex items-center gap-1.5 flex-grow">
+                                    <span class="text-[10px] font-bold text-[var(--accent-primary)] uppercase tracking-wider px-1">${varName}</span>
+                                    ${groupIndex === 0 
+                                        ? `<button onclick="renameVariable('${varName}')" class="text-xs text-gray-500 hover:text-white transition-colors" title="Rename Variable"><span class="material-symbols-outlined text-xs">edit</span></button>`
+                                        : ''
+                                    }
+                                </div>
+                                ${groupIndex === 0 ? `<button onclick="removeVariable('${varName}')" class="text-xs text-red-500/50 hover:text-red-500 transition-colors ml-2" title="Delete Variable from All Groups"><span class="material-symbols-outlined text-xs">close</span></button>` : ''}
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="relative">
+                                    <span class="absolute left-2.5 top-2 text-[8px] text-gray-500 font-bold tracking-widest">MEAN</span>
+                                    <input type="number" step="0.01" value="${group.variables[varName].mean}" 
+                                        onchange="updateConfig(${groupIndex}, '${varName}', 'mean', this.value)"
+                                        class="input-dark w-full text-xs pl-2.5 pt-4 pb-1">
+                                </div>
+                                <div class="relative">
+                                    <span class="absolute left-2.5 top-2 text-[8px] text-gray-500 font-bold tracking-widest">SD</span>
+                                    <input type="number" step="0.001" value="${group.variables[varName].sd}" 
+                                        onchange="updateConfig(${groupIndex}, '${varName}', 'sd', this.value)"
+                                        class="input-dark w-full text-xs pl-2.5 pt-4 pb-1">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                groupEl.innerHTML = `
+                    ${deleteBtn}
+                    <div class="mb-3 pr-6">
+                        <label class="block text-[8px] uppercase text-gray-500 font-bold mb-0.5 tracking-widest">Group Name</label>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="font-bold text-white text-sm w-full truncate border-b border-transparent hover:border-gray-500 transition-colors py-0.5 cursor-pointer" onclick="renameGroup(${groupIndex})">${group.name}</span>
+                            <button onclick="renameGroup(${groupIndex})" class="text-xs text-gray-500 hover:text-white shrink-0" title="Rename Group"><span class="material-symbols-outlined text-xs">edit</span></button>
+                        </div>
+                        <div class="flex items-center text-[10px] text-gray-400 bg-black/20 rounded p-1 w-fit">
+                            <span class="mr-1.5 uppercase font-bold tracking-wider">n:</span>
+                            <input type="number" min="2" value="${group.n}" onchange="updateGroupN(${groupIndex}, this.value)" 
+                                class="w-10 px-1 py-0.5 bg-white/5 border border-white/10 rounded text-center text-white focus:outline-none focus:border-[var(--accent-primary)] transition-colors">
+                        </div>
+                    </div>
+                    ${varsHtml}
+                `;
+                container.appendChild(groupEl);
+            });
+        }
+
+        function renderTabs() {
+            const container = document.getElementById('tabs-container');
+            container.innerHTML = '';
+            
+            state.groups.forEach((group, index) => {
+                const btn = document.createElement('button');
+                const isActive = index === state.activeTabIndex;
+                btn.className = `tab-btn px-4 py-2 text-xs font-bold whitespace-nowrap ${isActive ? 'active' : ''}`;
+                btn.textContent = group.name;
+                btn.onclick = () => switchTab(index);
+                container.appendChild(btn);
+            });
+        }
+
+        function calculateActualStats(arr) {
+            const n = arr.length;
+            if (n === 0) return { mean: 0, sd: 0 };
+            const mean = arr.reduce((a, b) => a + b, 0) / n;
+            const variance = arr.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / (n - 1);
+            return { mean, sd: Math.sqrt(variance) };
+        }
+
+        function generateData() {
+            state.generatedData = [];
+            let totalN = 0;
+            const allVarNames = state.groups.length > 0 ? Object.keys(state.groups[0].variables) : [];
+
+            state.groups.forEach((group) => {
+                totalN += group.n;
+                const groupData = {}; 
+                
+                allVarNames.forEach(varName => {
+                    const params = group.variables[varName];
+                    if(params) {
+                        groupData[varName] = generateExactData(group.n, params.mean, params.sd);
+                    } else {
+                        groupData[varName] = Array(group.n).fill(0);
+                    }
+                });
+
+                for (let i = 0; i < group.n; i++) {
+                    const row = {
+                        id: `${group.name.substring(0, 3).toUpperCase().replace(/[^A-Z]/g, '')}_${i + 1}`,
+                        group: group.name
+                    };
+                    allVarNames.forEach(varName => {
+                        row[varName] = groupData[varName][i];
+                    });
+                    state.generatedData.push(row);
+                }
+            });
+
+            document.getElementById('total-n').textContent = totalN;
+            
+            // Show results on generate
+            document.getElementById('results-panel').classList.remove('hidden');
+            
+            renderTabs();
+            renderTable(allVarNames);
+            renderStatsVerification(allVarNames);
+            
+            // Trigger Expansion Animation
+            triggerVerificationExpand();
+        }
+
+        function renderTable(varNames) {
+            const thead = document.getElementById('data-table-header');
+            const tbody = document.getElementById('data-table-body');
+            
+            // Generate Headers with Click-to-Copy
+            let headerHtml = `
+                <th class="px-4 py-2">ID</th>
+                <th class="px-4 py-2">Group</th> 
+            `;
+            varNames.forEach(v => {
+                headerHtml += `
+                    <th class="px-4 py-2 text-right group cursor-pointer hover:text-white transition-colors" onclick="copyColumn('${v}')" title="Click to copy all ${v} values">
+                        <div class="flex items-center justify-end gap-1">
+                            ${v}
+                            <span class="material-symbols-outlined text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">content_copy</span>
+                        </div>
+                    </th>
+                `;
+            });
+            thead.innerHTML = headerHtml;
+
+            tbody.innerHTML = '';
+            
+            // Filter by Active Tab Group
+            const activeGroupName = state.groups[state.activeTabIndex]?.name;
+            const rowsToRender = activeGroupName 
+                ? state.generatedData.filter(row => row.group === activeGroupName)
+                : [];
+
+            if (rowsToRender.length === 0 && state.generatedData.length > 0) {
+                // Fallback if name mismatch (shouldn't happen with correct logic)
+                tbody.innerHTML = '<tr><td colspan="100%" class="px-4 py-4 text-center text-gray-500">No data for this group. Try regenerating.</td></tr>';
+                return;
+            }
+
+            rowsToRender.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.className = 'table-row';
+                
+                let rowHtml = `
+                    <td class="px-4 py-2 font-medium text-white whitespace-nowrap">${row.id}</td>
+                    <td class="px-4 py-2 text-gray-400">${row.group}</td>
+                `;
+                varNames.forEach(v => {
+                    rowHtml += `<td class="px-4 py-2 text-[var(--dl-poetry-accent)] font-mono text-right">${row[v]?.toFixed(3) || '0.000'}</td>`;
+                });
+                tr.innerHTML = rowHtml;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderStatsVerification(varNames) {
+            const tbody = document.getElementById('stats-table-body');
+            tbody.innerHTML = '';
+
+            const grouped = {};
+            state.generatedData.forEach(item => {
+                if (!grouped[item.group]) {
+                    grouped[item.group] = {};
+                    varNames.forEach(v => grouped[item.group][v] = []);
+                }
+                varNames.forEach(v => grouped[item.group][v].push(item[v]));
+            });
+
+            state.groups.forEach(group => {
+                varNames.forEach(varName => {
+                    if (!group.variables[varName]) return;
+                    
+                    const actualValues = grouped[group.name] ? grouped[group.name][varName] : [];
+                    const actualStats = calculateActualStats(actualValues);
+                    const targetMean = group.variables[varName].mean;
+                    const targetSd = group.variables[varName].sd;
+
+                    const isMeanAccurate = Math.abs(actualStats.mean - targetMean) < 0.001;
+                    const isSdAccurate = Math.abs(actualStats.sd - targetSd) < 0.001;
+                    const isAccurate = isMeanAccurate && isSdAccurate;
+
+                    tbody.innerHTML += `
+                        <tr class="table-row">
+                            <td class="px-4 py-2 font-medium text-white">${group.name}</td>
+                            <td class="px-4 py-2 text-gray-400">${varName}</td>
+                            <td class="px-4 py-2 text-gray-500 text-right font-mono text-xs">${targetMean.toFixed(2)} &plusmn; ${targetSd.toFixed(3)}</td>
+                            <td class="px-4 py-2 font-bold font-mono text-xs text-right ${isAccurate ? 'text-green-500' : 'text-amber-500'}">
+                                ${actualStats.mean.toFixed(3)} &plusmn; ${actualStats.sd.toFixed(3)}
+                            </td>
+                            <td class="px-4 py-2 text-center">
+                                ${isAccurate 
+                                    ? '<span class="material-symbols-outlined text-green-500 text-base">check_circle</span>' 
+                                    : '<span class="material-symbols-outlined text-amber-500 text-base" title="Small float rounding differences may occur">warning</span>'}
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+        }
+
+        function downloadCSV() {
+            const varNames = state.groups.length > 0 ? Object.keys(state.groups[0].variables) : [];
+            const headers = ["ID", "Group", ...varNames];
+            const csvRows = [headers.join(",")];
+
+            state.generatedData.forEach(row => {
+                const values = [
+                    row.id,
+                    `"${row.group}"`,
+                    ...varNames.map(v => row[v].toFixed(4))
+                ];
+                csvRows.push(values.join(","));
+            });
+
+            downloadFile(csvRows.join("\n"), "dataset.csv", "text/csv");
+        }
+
+        function downloadJSON() {
+            const jsonStr = JSON.stringify(state.generatedData, null, 2);
+            downloadFile(jsonStr, "dataset.json", "application/json");
+        }
+
+        function downloadFile(content, fileName, mimeType) {
+            const blob = new Blob([content], { type: `${mimeType};charset=utf-8;` });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = fileName;
+            link.style.display = "none";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Initialize: Only render config, don't generate data/show results yet
+        renderConfig();
+
+    </script>
+</body>
+</html>
